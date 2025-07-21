@@ -1,0 +1,49 @@
+/*CSS reset*/
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@media screen and (width <= 900px) {
+    .boards-container {
+      flex-direction: column;
+      gap: 20px;
+    }
+  }
+
+.main-container{
+    padding: 30px;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 5%;
+    /* justify-content: space-evenly; */
+    align-items: center;
+}
+
+.boards-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+.player-board-container, .computer-board-container{
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    gap: 5%;
+}
+
+.player-board{
+    background-color: aqua;
+    width: 400px;
+    height: 400px;
+}
+
+.computer-board{
+    background-color: rgb(0, 255, 51);
+    width: 400px;
+    height: 400px;
+}
