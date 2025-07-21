@@ -1,5 +1,5 @@
-import { Gameboard } from "../model/gameboard";
-import { Ship } from "../model/ship";
+import { Gameboard } from "../models/gameboard";
+import { Ship } from "../models/ship";
 
 
 describe('Gameboard class', () => { 
