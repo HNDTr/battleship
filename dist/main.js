@@ -1,0 +1,1 @@
+(()=>{"use strict";document.addEventListener("DOMContentLoaded",()=>{!function(){const e=document.querySelector(".player-board");console.log(e);const t=document.createElement("div");t.className="grid-box",e.appendChild(t)}()})})();

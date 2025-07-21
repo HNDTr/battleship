@@ -47,3 +47,10 @@
     width: 400px;
     height: 400px;
 }
+
+/*DOM*/
+.grid-box{
+    border: solid 1px black;
+    width: calc(100%/10);
+    height: calc(100%/10);
+}
