@@ -59,6 +59,14 @@ class Gameboard{
     allShipsSunked(){
         return this.#ships.every(placeShip => placeShip.ship.isSunk())
     }
+
+    resetShips(){
+        this.#ships = [];
+    }
+
+    get ships(){
+        return this.#ships
+    }
 }
 
 export {Gameboard}
