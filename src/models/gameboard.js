@@ -1,6 +1,7 @@
 class Gameboard{
     #size;
     #missedAttacks = [] //missed coordinates
+    #hitAttacks = []
     #ships = [] //stored ships coordinates
 
     constructor(size = 10){
@@ -35,18 +36,24 @@ class Gameboard{
     }
 
     receiveAttack(x, y){
-        // check if hit or miss
+       
+        // prevent re-attack
+        const alreadyMissed = this.#missedAttacks.find(coord => coord.x === x && coord.y === y);
+        const alreadyHit = this.#hitAttacks.find(coord => coord.x === x && coord.y === y);
+
+        if (alreadyMissed || alreadyHit) {
+            return 'already attacked!';
+        }
 
         // if hit, then change that ship hit to + 1
-        this.#ships.forEach((placeShip) => {
-                // hit
-                let hitCoord = placeShip.coordinates.find(c => c.x === x && c.y === y)
-                if (hitCoord){
-                    placeShip.ship.hit();
-                    return 'hit!';
-                } 
-        })
-
+        for (const placedShip of this.#ships) {
+            const hitCoord = placedShip.coordinates.find(c => c.x === x && c.y === y);
+            if (hitCoord) {
+                placedShip.ship.hit();
+                this.#hitAttacks.push({x, y});
+                return 'hit!';
+            }
+        }
         // missed
         this.#missedAttacks.push({x, y});
         return "missed!"
@@ -54,6 +61,10 @@ class Gameboard{
  
     get missedAttacks(){
         return this.#missedAttacks;
+    }
+
+    get hitAttacks(){
+        return this.#hitAttacks;
     }
 
     allShipsSunked(){

@@ -1,24 +1,25 @@
+import { randomShipsPlacement, hitShip } from "./game";
 
-import { randomShipsPlacement } from "./game";
-
-function boardDisplay(name) {
+function boardDisplay(name, playerBoard, computerBoard) {
     const board = document.querySelector(`.${name}-board`);
-    for(let r=0; r < 10; r++){ // rows
-        for(let c=0; c <10; c++){ // columns
+    board.innerHTML = ''
+    for(let r=0; r < 10; r++){ 
+        for(let c=0;  c < 10; c++){ 
             const gridBox = document.createElement('div');
             gridBox.className = 'grid-box';
             gridBox.dataset.row = r;  // data-row
             gridBox.dataset.col = c;  // data-col
             gridBox.id = `${name}-box-${r}-${c}`; // unique ID like "player-box-0-0"
+            if(name === 'computer'){
+                hitShip(gridBox, playerBoard, computerBoard);
+            } 
             board.appendChild(gridBox);
         }
     }
 }
 
-function playersBoardDisplay(){
-    boardDisplay('player');
-    boardDisplay('computer');
-}
+
+
 
 function displayShipsOnBoard(player, boardName) {
     player.gameBoard.ships.forEach(({ coordinates }) => {
@@ -29,28 +30,54 @@ function displayShipsOnBoard(player, boardName) {
     });
 }
 
-function randomDisplayButton(player1, player2){
+function randomDisplayButton(human, computer){
     const randomDisplayBtn = document.querySelector('.rand-display-btn');
     randomDisplayBtn.addEventListener('click', () => {
         // Reset boards visually
+        boardDisplay('player', human.gameBoard, computer.gameBoard)
+        boardDisplay('computer', human.gameBoard, computer.gameBoard)
+
         document.querySelectorAll('.grid-box').forEach(box => {
             box.classList.remove('ship');
         });
 
-        player1.gameBoard.resetShips();
-        player2.gameBoard.resetShips();
-        randomShipsPlacement(player1)
-        randomShipsPlacement(player2)
-        // console.log(player1.gameBoard.ships)
-        // console.log(player2.gameBoard.ships)
+        human.gameBoard.resetShips();
+        computer.gameBoard.resetShips();
+        randomShipsPlacement(human)
+        randomShipsPlacement(computer)
+        
+        // console.log(human.gameBoard.ships)
+        // console.log(computer.gameBoard.ships)
 
         // Display ships on boards
-        displayShipsOnBoard(player1, 'player');
-        displayShipsOnBoard(player2, 'computer');
+        displayShipsOnBoard(human, 'player');
+        displayShipsOnBoard(computer, 'computer');
+    })
+}
+
+function displayAIAttacks(humanGameBoard){
+    //display missed
+    humanGameBoard.missedAttacks.forEach((coord) => {
+        let x = coord.x;
+        let y = coord.y;
+
+        const grid = document.querySelector(`#player-box-${y}-${x}`)
+        grid.style.backgroundColor = 'black';
     })
 
+    //display hit
+    humanGameBoard.hitAttacks.forEach((coord) => {
+        let x = coord.x;
+        let y = coord.y;
+
+        const grid = document.querySelector(`#player-box-${y}-${x}`)
+        grid.style.backgroundColor = 'red';
+    })
+}
+
+function displayWinner(){
 
 }
 
 
-export {boardDisplay, playersBoardDisplay, randomDisplayButton}
+export {boardDisplay, randomDisplayButton, displayAIAttacks}
