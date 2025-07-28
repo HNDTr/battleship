@@ -53,6 +53,7 @@ function hitShip(grid, humanBoard, computerBoard){
             grid.style.backgroundColor = 'black'
             // aiAttack(humanBoard)
         } else {
+            document.querySelector('.computer-board').style.pointerEvents = 'auto';
             return 
         }
 
