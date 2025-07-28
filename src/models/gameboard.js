@@ -71,8 +71,10 @@ class Gameboard{
         return this.#ships.every(placeShip => placeShip.ship.isSunk())
     }
 
-    resetShips(){
+    reset(){
         this.#ships = [];
+        this.#missedAttacks = [];
+        this.#hitAttacks = [];
     }
 
     get ships(){

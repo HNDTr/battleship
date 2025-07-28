@@ -1,6 +1,8 @@
 import { Ship } from "../models/ship";
-import { displayAIAttacks } from "./display";
+import { displayAIAttacks, displayWinner, displayTurn } from "./display";
 
+let recentHit; // queue; 
+let stacks = []; // aiPotentialAttacks 
 
 // let turn = 'Player';
 
@@ -15,7 +17,6 @@ function randomShipsPlacement(player){
         try {
             player.gameBoard.placeShip(ship, xCoord, yCoord, trueOrFalse);
         } catch (error) {
-            // console.log("Failed to place ship:", error.message);
             // Do NOT decrement totalShips, so we retry
             shipsLength.push(shipLength);
         }
@@ -36,61 +37,111 @@ function hitShip(grid, humanBoard, computerBoard){
         // TO-DO 
         let xcoord = +grid.dataset.row;
         let ycoord = +grid.dataset.col;
-        console.log(`x: ${xcoord}`)
-        console.log(`y: ${ycoord}`)
-        // x, y = getting from the grid 
 
-        // gameBoard.receiveAttack(x, y)
         let hitOrMiss = computerBoard.receiveAttack(ycoord, xcoord);
 
-        // console.log(hitOrMiss)
+        document.querySelector('.computer-board').style.pointerEvents = 'none';
 
         if (hitOrMiss === 'hit!'){
             grid.style.backgroundColor = 'red'
-            aiAttack(humanBoard)
+            // aiAttack(humanBoard)
             if(computerBoard.allShipsSunked()){
                 // display winning and button for restart
-                console.log('win!')
+                displayWinner('player');
             }
         } else if (hitOrMiss === 'missed!') {
             grid.style.backgroundColor = 'black'
-            aiAttack(humanBoard)
+            // aiAttack(humanBoard)
         } else {
             return 
         }
-        // changed Turn 
+
+        displayTurn('Waiting for their turn....')
+
+        setTimeout(() => {
+            aiAttack(humanBoard);
+
+            if (computerBoard.allShipsSunked()) {
+                displayWinner('player');
+            }
+
+            // Re-enable player clicks after AI finishes
+            document.querySelector('.computer-board').style.pointerEvents = 'auto';
+        }, 1000); // 500ms delay for AI "thinking"
     })
 }
 
 function aiAttack(gameBoard){
-    let alreadyAttack = true;
+    let attacking = true;
+    let neighbors = [
+        [0, 1],
+        [0, -1],
+        [-1, 0],
+        [1, 0]
+    ];
 
-    while (alreadyAttack){
-        let x = Math.floor((Math.random() * 10)); // 0 - 9
-        let y = Math.floor((Math.random() * 10)); 
-        let hitOrMiss = gameBoard.receiveAttack(x, y);
+    while (attacking){
+        // check if recent attacks 
+        if (recentHit){
+            if (stacks.length > 0){
+                let [x, y] = stacks.pop();
+                let hitOrMiss = gameBoard.receiveAttack(x, y);
+                if (hitOrMiss === 'hit!'){
+                    let directionHit = [x - recentHit[0], y - recentHit[1]];
+                    let nextX = x + directionHit[0];
+                    let nextY = y + directionHit[1];
 
-        if (hitOrMiss === 'hit!'){
-            // grid.style.backgroundColor = 'red'
-            displayAIAttacks(gameBoard)
-            console.log(`ai hit ${x}, ${y}`)
-            if(gameBoard.allShipsSunked()){
-                // display winning and button for restart
-                console.log('win!')
+                    if (nextX >= 0 && nextY >= 0 && nextX <= 9 && nextY <= 9) {
+                        stacks.push([nextX, nextY]);  // prioritize this next
+                    }
+                    recentHit = [x, y];
+
+                    if(gameBoard.allShipsSunked()){
+                        displayWinner('computer')
+                    }
+                    attacking = false;
+                } else if (hitOrMiss === 'missed!') {
+                    attacking = false;
+                } 
+            } else { // update recent hit since no longer have stacks
+                recentHit = null;
             }
-            // change turn 
-            alreadyAttack = false;
-        } else if (hitOrMiss === 'missed!') {
-            // grid.style.backgroundColor = 'black'
-            // change turn 
-            displayAIAttacks(gameBoard)
-            console.log(`ai missed ${x}, ${y}`)
-            alreadyAttack = false;
-        } 
+        } else {
+            let x = Math.floor((Math.random() * 10)); // 0 - 9
+            let y = Math.floor((Math.random() * 10)); 
+            let hitOrMiss = gameBoard.receiveAttack(x, y);
+            
+            if (hitOrMiss === 'hit!'){
+                recentHit = [x, y]
+                for (let [dx, dy] of neighbors){
+                    let newX = x + dx;
+                    let newY = y + dy;
+                    if(newX >= 0 && newY >= 0 && newX <= 9 && newY <= 9){
+                        stacks.push([newX, newY])
+                    }
+                }
+                if(gameBoard.allShipsSunked()){
+                    displayWinner('computer')
+                }
+                attacking = false;
+            } else if (hitOrMiss === 'missed!') {
+                attacking = false;
+            } 
+        }
     }
+    displayTurn('Your turn!')
+    displayAIAttacks(gameBoard)
+}
+
+function newGameReset(human, computer){
+    // reset everything
+    human.gameBoard.reset();
+    computer.gameBoard.reset(); 
+    recentHit; 
+    stacks = []; //aiPotentialAttacks
 }
 
 
 
 
-export {randomShipsPlacement, hitShip}
+export {randomShipsPlacement, hitShip, newGameReset}

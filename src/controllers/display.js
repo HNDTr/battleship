@@ -1,4 +1,5 @@
-import { randomShipsPlacement, hitShip } from "./game";
+import { randomShipsPlacement, hitShip, newGameReset } from "./game";
+import { Player } from "../models/player";
 
 function boardDisplay(name, playerBoard, computerBoard) {
     const board = document.querySelector(`.${name}-board`);
@@ -41,17 +42,14 @@ function randomDisplayButton(human, computer){
             box.classList.remove('ship');
         });
 
-        human.gameBoard.resetShips();
-        computer.gameBoard.resetShips();
+        newGameReset(human, computer)
         randomShipsPlacement(human)
         randomShipsPlacement(computer)
         
-        // console.log(human.gameBoard.ships)
-        // console.log(computer.gameBoard.ships)
-
         // Display ships on boards
         displayShipsOnBoard(human, 'player');
-        displayShipsOnBoard(computer, 'computer');
+
+        displayTurn('Your turn!')
     })
 }
 
@@ -75,9 +73,53 @@ function displayAIAttacks(humanGameBoard){
     })
 }
 
-function displayWinner(){
+function displayWinner(winner){
+    const winnerWindow = document.querySelector('.grey-background');
+    const gameOver = document.querySelector('.game-over-container');
+    const playAgainBtn = document.querySelector('.play-again-btn');
+    const winnerText = document.querySelector('.winner-text');
+    // show the window
+    winnerWindow.classList.remove('hide');
+    gameOver.classList.remove('hide');
+    // display whether win or lose
+    if(winner === 'player'){
+        winnerText.textContent = 'You win!';
+    } else {
+        winnerText.textContent = 'You lose!';
+    }
+
+    const human = new Player();
+    const computer = new Player();
+    // play again button
+    playAgainBtn.addEventListener('click', () => {
+        randomShipsPlacement(human, computer)
+        winnerWindow.classList.add('hide');
+        gameOver.classList.add('hide');
+    })
+}
+
+function displayGameStart(human, computer){
+    const randomDisplayBtn = document.querySelector('.rand-display-btn');
+    const window = document.querySelector('.grey-background');
+    const gameStart = document.querySelector('.game-start-container');
+    const playGameBtn = document.querySelector('.play-game-btn');
+
+    window.classList.remove('hide');
+
+    playGameBtn.addEventListener('click', () => {
+        randomDisplayButton(human, computer)
+        gameStart.classList.add('hide')
+        window.classList.add('hide');
+        randomDisplayBtn.click();
+    })
 
 }
 
+function displayTurn(text){
+    const turnText = document.querySelector('.turn-display');
 
-export {boardDisplay, randomDisplayButton, displayAIAttacks}
+    turnText.textContent = `${text}`
+}
+
+
+export {boardDisplay, randomDisplayButton, displayAIAttacks, displayWinner, displayGameStart, displayTurn}
